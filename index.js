@@ -1,3 +1,12 @@
 const express = require('express')
-const bcrypt = require('bcrypt')
-const jsonwebtoken = require('jsonwebtoken')
+const dbConnection = require('./connections/dbConnection')
+
+const app = express();
+
+app.use(express.json())
+
+dbConnection()
+
+app.listen(process.env.PORT, () => {
+    console.debug(`ejecutando servidor en el puerto ${process.env.PORT}`);
+})

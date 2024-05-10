@@ -16,6 +16,14 @@ const Habitaciones = new Schema({
     photo: {
         type: String,
         required: true,
+    },
+    initialDate: {
+        type: Date,
+        required: true
+    },
+    finalDate: {
+        type: Date,
+        required: true
     }
 })
 
