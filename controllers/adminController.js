@@ -1,6 +1,6 @@
-const root = require('../models/userSchema')
+// const root = require('../models/userSchema')
 
 
 
 
-modules.exports = root
+// modules.exports = root

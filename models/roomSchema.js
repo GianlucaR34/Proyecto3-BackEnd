@@ -17,14 +17,20 @@ const Habitaciones = new Schema({
         type: String,
         required: true,
     },
-    initialDate: {
-        type: Date,
-        required: true
-    },
-    finalDate: {
-        type: Date,
-        required: true
-    }
+    reservationDates: [{
+        idUser: {
+            type: Object,
+            required: true,
+        },
+        initialDate: {
+            type: Date,
+            required: true
+        },
+        finalDate: {
+            type: Date,
+            required: true
+        }
+    }]
 })
 
 

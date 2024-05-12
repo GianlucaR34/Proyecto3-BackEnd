@@ -1,16 +1,21 @@
 const { model, Schema } = require('mongoose')
+const { emailRegexp, passwordRegexp } = require('../middlewares/validator')
 
-const Cliente = new Schema({
+const Usuario = new Schema({
     mail: {
         type: String,
-        required: [true, 'Se requiere el correo de usuario']
+        required: [true, 'Se requiere el correo de usuario'],
+        validate: {
+            validator: (v) => emailRegexp.test(v),
+            message: props => `${props.value} no es un numero de telefono valido!`
+        },
     },
     password: {
         //define que tipo de password se requiere y valida que cumpla la expresion regular
         type: String,
         required: [true, 'Se requiere la contraseña de usuario'],
         validate: {
-            validator: (v) => process.env.regexp_password.test(v),
+            validator: (v) => passwordRegexp.test(v),
             message: props => `${props.value} no es un numero de telefono valido!`
         },
     },
@@ -32,4 +37,4 @@ const Cliente = new Schema({
 })
 
 
-modules.exports = model("Cliente", Cliente)
+module.exports = model("Usuario", Usuario)
