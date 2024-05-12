@@ -1,5 +1,5 @@
 const { model, Schema } = require('mongoose')
-const { emailRegexp, passwordRegexp } = require('../middlewares/validator')
+const { emailRegexp, passwordRegexp } = require('../validators/validator')
 
 const Usuario = new Schema({
     mail: {
@@ -7,7 +7,7 @@ const Usuario = new Schema({
         required: [true, 'Se requiere el correo de usuario'],
         validate: {
             validator: (v) => emailRegexp.test(v),
-            message: props => `${props.value} no es un numero de telefono valido!`
+            message: props => `${props.value} no es un correo electronico valido!`
         },
     },
     password: {
@@ -16,7 +16,7 @@ const Usuario = new Schema({
         required: [true, 'Se requiere la contraseña de usuario'],
         validate: {
             validator: (v) => passwordRegexp.test(v),
-            message: props => `${props.value} no es un numero de telefono valido!`
+            message: props => `${props.value} no es un contraseña valida!`
         },
     },
     isEditable: {

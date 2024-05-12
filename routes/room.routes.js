@@ -6,6 +6,6 @@ roomRouter.get('/reservedRooms', habitacionesReservadas);
 roomRouter.post('/createRoom', crearHabitacion)
 roomRouter.post('/roomReserve', reservarHabitacion)
 roomRouter.patch('/modifyRoom', modificarHabitacion)
-roomRouter.delete('/cancelReserve', cancelarReserva)
+roomRouter.patch('/cancelReserve', cancelarReserva)
 
 modules.exports = router;

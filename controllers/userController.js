@@ -1,7 +1,7 @@
 const Usuario = require('../models/userSchema')
 // const dotenv = require('dotenv')
 const bcrypt = require('bcrypt')
-const { emailRegexp, passwordRegexp } = require('../middlewares/validator');
+const { emailRegexp, passwordRegexp } = require('../validators/validator');
 // dotenv.config()
 
 const loginUsuarios = async (req, res) => {
@@ -42,13 +42,24 @@ const registrarUsuarios = async (req, res) => {
             })
         } catch (error) {
             console.debug(error)
+            return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
+
         }
 
     }
 };
 
+const deleteUsuarios = async (req, res) => {
+    try {
+        const usuarioEliminado = await Usuario.findByIdAndDelete(req.params.id);
+        if (!usuarioEliminado) {
+            return res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
+        }
+        return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" });
+    } catch (error) {
+        console.error("Error al eliminar el usuario:", error);
+        return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
+    }
+}
 
-
-
-
-module.exports = { loginUsuarios, registrarUsuarios }
+module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios }
