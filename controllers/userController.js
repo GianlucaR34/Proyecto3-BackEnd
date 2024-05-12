@@ -1,6 +1,7 @@
 const Usuario = require('../models/userSchema')
 // const dotenv = require('dotenv')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const { emailRegexp, passwordRegexp } = require('../validators/validator');
 // dotenv.config()
 
@@ -11,10 +12,18 @@ const loginUsuarios = async (req, res) => {
         return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
     } else if (await bcrypt.compare(password, userObject.password) == false) {
         return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
-    } else {
-        //Aca iria el codigo de JWT
-        res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success" })
     }
+    //Aca iria el codigo de JWT
+    //Se crea payload del usuario
+    const payload = { name: userObject.mail, id: userObject._id, rol: userObject.userType }
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {
+        expiresIn: '30m'
+    })
+
+
+
+
+    res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success" })
 };
 
 const registrarUsuarios = async (req, res) => {
