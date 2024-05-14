@@ -20,10 +20,10 @@ const loginUsuarios = async (req, res) => {
         expiresIn: '30m'
     })
 
+    console.log(token)
 
 
-
-    res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success" })
+    res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token })
 };
 
 const registrarUsuarios = async (req, res) => {
@@ -71,4 +71,16 @@ const deleteUsuarios = async (req, res) => {
     }
 }
 
-module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios }
+const listaUsuarios = async (req, res) => {
+    console.log(req)
+    return res.send(201)
+
+}
+
+const modificarUsuario = async (req, res) => {
+    console.log(req)
+    return res.send(201)
+
+}
+
+module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario }

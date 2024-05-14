@@ -19,19 +19,16 @@ const Habitaciones = new Schema({
     },
     reservationDates: [{
         idUser: {
-            type: Object,
-            required: true,
+            type: String,
         },
         initialDate: {
             type: Date,
-            required: true
         },
         finalDate: {
             type: Date,
-            required: true
         }
     }]
 })
 
 
-modules.exports = model("Habitacion", Habitaciones)
+module.exports = model("Habitacion", Habitaciones)

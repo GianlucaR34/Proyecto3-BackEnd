@@ -9,7 +9,7 @@ app.use(cors())
 app.use(express.json())
 app.use('/user', require('./routes/user.routes'))
 // app.use('/admin', require('./routes/admin.routes'))
-// app.use('/roomReservation', require('./routes/room.routes'))
+app.use('/roomReservation', require('./routes/room.routes'))
 
 dbConnection()
 
