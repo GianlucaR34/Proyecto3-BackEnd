@@ -20,7 +20,7 @@ const loginUsuarios = async (req, res) => {
         expiresIn: '30m'
     })
 
-    console.log(token)
+    // console.log(token)
 
 
     res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token })
@@ -60,11 +60,20 @@ const registrarUsuarios = async (req, res) => {
 
 const deleteUsuarios = async (req, res) => {
     try {
-        const usuarioEliminado = await Usuario.findByIdAndDelete(req.params.id);
-        if (!usuarioEliminado) {
-            return res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
+        // const usuarioEliminado = await Usuario.findByIdAndDelete(req.params.id);
+        const token = req.header('TokenJWT')
+        const userBodyJWT = jwt.decode(token)
+        const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name || req.body.mail })
+        if (!clientUserID) {
+            res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
+        } else if (req.url == '/deleteUser/' && clientUserID.isAdmin == false) {
+            await Usuario.findByIdAndDelete(clientUserID._id)
+            res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" })
+        } else if (req.url = '/deleteUser/' && clientUserID.isAdmin == true) {
+            const idUser = req.params.id
+            await Usuario.findByIdAndDelete(idUser)
+            res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" });
         }
-        return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" });
     } catch (error) {
         console.error("Error al eliminar el usuario:", error);
         return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
@@ -72,14 +81,19 @@ const deleteUsuarios = async (req, res) => {
 }
 
 const listaUsuarios = async (req, res) => {
-    console.log(req)
-    return res.send(201)
+    const listaUsuarios = Usuarios.find()
+    return res.status(200).send(listaUsuarios)
 
 }
 
 const modificarUsuario = async (req, res) => {
-    console.log(req)
-    return res.send(201)
+    const token = req.header('TokenJWT')
+    const userBodyJWT = jwt.decode(token)
+    const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name })
+    if (req.url = '/modifyUser/' && clientUserID.isAdmin == true) {
+        const idUser = clientUserID._id
+        await Usuario.findByIdAndUpdate({ _id: idUser }, req.body, { new: true })
+    }
 
 }
 

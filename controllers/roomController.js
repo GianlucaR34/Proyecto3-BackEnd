@@ -9,7 +9,7 @@ const listaHabitaciones = async (req, res) => {
 const cancelarReserva = async (req, res) => {
     // const listaHabitaciones = await Habitaciones.find()
 
-    res.status(200).send("ok")
+    res.status(200).send("listaHabitaciones")
 };
 
 const reservarHabitacion = async (req, res) => {
@@ -26,6 +26,8 @@ const modificarHabitacion = async (req, res) => {
 
 const crearHabitacion = async (req, res) => {
     const { type, number, price, photo, reservationDates } = req.body
+    const token = req.header('TokenJWT')
+    const userBodyJWT = JWT.decode(token)
     let Habitacion = await Habitaciones.findOne({ number: number })
     if (Habitacion) {
         return res.status(400).json({ msg: "La habitacion ya se encuentra creada", type: "error" })
