@@ -1,9 +1,7 @@
 const Usuario = require('../models/userSchema')
-// const dotenv = require('dotenv')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { emailRegexp, passwordRegexp } = require('../validators/validator');
-// dotenv.config()
 
 const loginUsuarios = async (req, res) => {
     const { mail, password } = req.body
@@ -13,17 +11,12 @@ const loginUsuarios = async (req, res) => {
     } else if (await bcrypt.compare(password, userObject.password) == false) {
         return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
     }
-    //Aca iria el codigo de JWT
     //Se crea payload del usuario
     const payload = { name: userObject.mail, id: userObject._id, rol: userObject.userType }
     const token = jwt.sign(payload, process.env.SECRET_KEY, {
         expiresIn: '30m'
     })
-
-    // console.log(token)
-
-
-    res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token })
+    return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token })
 };
 
 const registrarUsuarios = async (req, res) => {
@@ -52,9 +45,7 @@ const registrarUsuarios = async (req, res) => {
         } catch (error) {
             console.debug(error)
             return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
-
         }
-
     }
 };
 
@@ -65,14 +56,18 @@ const deleteUsuarios = async (req, res) => {
         const userBodyJWT = jwt.decode(token)
         const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name || req.body.mail })
         if (!clientUserID) {
-            res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
+            return res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
         } else if (req.url == '/deleteUser/' && clientUserID.isAdmin == false) {
             await Usuario.findByIdAndDelete(clientUserID._id)
-            res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" })
-        } else if (req.url = '/deleteUser/' && clientUserID.isAdmin == true) {
+            return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" })
+        } else if (req.url = '/deleteUser/' && clientUserID.isAdmin) {
             const idUser = req.params.id
-            await Usuario.findByIdAndDelete(idUser)
-            res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" });
+            const userTarget = Usuario.findOne({ _id: idUser })
+            if (userTarget.isEditable == false) {
+                await Usuario.findByIdAndDelete(idUser)
+                return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" });
+            }
+            return res.status(400).json({ msg: "El administrador no se puede eliminar!", type: "error" })
         }
     } catch (error) {
         console.error("Error al eliminar el usuario:", error);
@@ -81,7 +76,7 @@ const deleteUsuarios = async (req, res) => {
 }
 
 const listaUsuarios = async (req, res) => {
-    const listaUsuarios = Usuarios.find()
+    const listaUsuarios = await Usuario.find()
     return res.status(200).send(listaUsuarios)
 
 }
