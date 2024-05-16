@@ -13,5 +13,5 @@ app.use('/roomReservation', require('./routes/room.routes'))
 dbConnection()
 
 app.listen(process.env.PORT, () => {
-    console.debug(`ejecutando servidor en el puerto ${process.env.PORT}`);
+    console.log(`ejecutando servidor en el puerto ${process.env.PORT}`);
 })

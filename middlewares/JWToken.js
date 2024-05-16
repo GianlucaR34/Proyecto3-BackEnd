@@ -4,7 +4,7 @@ const validarJWT = (req, res, next) => {
     const token = req.header('TokenJWT')
 
     if (!token) {
-        res.status(403).json({
+        return res.status(403).json({
             msg: "El usuario no se encuentra autorizado a acceder al recurso",
             type: "error"
         })
@@ -13,7 +13,7 @@ const validarJWT = (req, res, next) => {
     try {
         const body = jwt.verify(token, process.env.SECRET_KEY)
     } catch (error) {
-        res.status(401).json({ msg: "La sesión expiró", type: "error" })
+        return res.status(401).json({ msg: "La sesión expiró", type: "error" })
     }
 
     next()
