@@ -10,8 +10,18 @@ const listaHabitaciones = async (req, res) => {
 };
 
 const habitacionesReservadas = async (req, res) => {
-
     //traer habitaciones que tienen reserva solamente
+    const token = req.header('TokenJWT')
+    if (!token) {
+        return res.status(403).json({ msg: "El usuario necesita estar logueado", type: "error" })
+    }
+    const userBodyJWT = JWT.decode(token)
+    // console.log(userBodyJWT)
+    const userObject = await Usuario.findOne({ _id: userBodyJWT.id })
+    // console.log(userObject.isAdmin)
+    if (!userObject.isAdmin) {
+        return res.status(403).json({ msg: "El usuario no tiene permiso para ejecutar esta accion", type: "error" })
+    }
     const habitaciones = await Habitaciones.find()
     let habitacionesReservadasArray = []
     let habitacionesReservadas = []
@@ -26,7 +36,7 @@ const habitacionesReservadas = async (req, res) => {
         habitacionesReservadas.push(habitacionReservada)
     }
 
-    return res.status(200).json(habitacionesReservadas)
+    return res.status(200).send(habitacionesReservadas)
 }
 
 const cancelarReserva = async (req, res) => {

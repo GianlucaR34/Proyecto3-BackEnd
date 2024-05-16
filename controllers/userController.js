@@ -24,7 +24,6 @@ const registrarUsuarios = async (req, res) => {
     let User = await Usuario.findOne({ mail: mail })
     //validaciones
     if (emailRegexp.test(mail) == false) {
-        console.log(emailRegexp.test(mail))
         return res.status(400).json({ msg: "el mail no es valido", type: "error" })
     } else if (!mail || !password) {
         return res.status(400).json({ msg: "Los campos no deben estar vacios", type: "error" })
@@ -43,7 +42,6 @@ const registrarUsuarios = async (req, res) => {
                 type: "success"
             })
         } catch (error) {
-            console.debug(error)
             return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
         }
     }
