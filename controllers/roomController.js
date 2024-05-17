@@ -123,8 +123,16 @@ const reservarHabitacion = async (req, res) => {
 
 const modificarHabitacion = async (req, res) => {
     //trae una habitacion con el id en el param y puede actualizarse completa o parcialmente (por ejemplo se puede actualizar el precio o todo lo demás)
-    console.log("hola")
-    return res.status(201).send("Everything ok")
+    const token = req.header('TokenJWT')
+    const userBodyJWT = JWT.decode(token)
+    const habitacion = await Habitaciones.findById(req.params.id) || req.body.number
+    const isAdmin = (await Usuario.findOne({ mail: userBodyJWT.name })).isAdmin
+    if (!habitacion) return res.status(400).json({ msg: "La habitacion ingresada no existe" });
+    if (!isAdmin) {
+        return res.status(403).json({ msg: "Esta acción no está permitida", type: "error" })
+    }
+    await Habitaciones.findByIdAndUpdate({ _id: req.params.id }, req.body, { new: true })
+    return res.status(201).json({ msg: "Habitacion actualizada exitosamente", type: "success" })
 };
 
 const crearHabitacion = async (req, res) => {
