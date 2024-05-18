@@ -40,14 +40,70 @@ const habitacionesReservadas = async (req, res) => {
 }
 
 const cancelarReserva = async (req, res) => {
-    // const listaHabitaciones = await Habitaciones.find()
-    //traer las habitaciones donde el usuario tiene reserva
+    const token = req.header('TokenJWT')
+    if (!token) {
+        return res.status(403).json({ msg: "El usuario necesita estar logueado", type: "error" })
+    }
+    const userBodyJWT = JWT.decode(token)
+    const user = await Usuario.findOne({ mail: userBodyJWT.name })
+    const listaHabitaciones = await Habitaciones.find()
+    if (user.isAdmin) {
+        const fechaInicial = new Date(req.body.initialDate)
+        const fechaFinal = new Date(req.body.finalDate)
+        let reservaUser
+        listaHabitaciones.forEach((habitacion) => {
+            habitacion.reservationDates.find((reserva) => {
+                if (reserva.idUser == req.params.id && fechaInicial - reserva.initialDate == 0 && fechaFinal - reserva.finalDate == 0) {
+                    reservaUser = reserva
+                }
+            })
+        })
+        let indexHabitacion
+        listaHabitaciones.forEach((habitacion, index) => {
+            if (habitacion.number == req.body.number) indexHabitacion = index
+        })
 
-    //extraer el indice
+        const habitacion = listaHabitaciones[indexHabitacion]
+        const reservedDatesFromRoom = habitacion.reservationDates
+        reservedDatesFromRoom.pop(indexHabitacion)
+        await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, { reservationDates: reservedDatesFromRoom }, { new: true })
+
+
+    } else {
+        if (req.params.id) return res.status(403).json({ msg: "No tiene permitido realizar esa accion", type: "error" })
+
+        const fechaInicial = new Date(req.body.initialDate)
+        const fechaFinal = new Date(req.body.finalDate)
+        let indexHabitacion
+        listaHabitaciones.forEach((habitacion, index) => {
+            if (habitacion.number == req.body.number) indexHabitacion = index
+        })
+        if (!indexHabitacion) return res.status(404).json({ msg: "No hay ninguna habitacion que hayas reservado", type: "error" })
+        let reservaUser
+        listaHabitaciones.forEach((habitacion) => {
+            habitacion.reservationDates.find((reserva) => {
+                if (reserva.idUser == user._id && fechaInicial - reserva.initialDate == 0 && fechaFinal - reserva.finalDate == 0) {
+                    reservaUser = reserva
+                }
+            })
+        })
+        if (!reservaUser) return res.status(404).json({ msg: "Reserva no encontrada", type: "error" })
+
+
+        const habitacion = listaHabitaciones[indexHabitacion]
+        const reservedDatesFromRoom = habitacion.reservationDates
+        reservedDatesFromRoom.pop(indexHabitacion)
+        await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, { reservationDates: reservedDatesFromRoom }, { new: true })
+    }
+
+    // console.log("el usuario tiene estas habitaciones reservadas")
+
+    //extraer la reserva de la habitacion
+
 
     //eliminar y actualizar el objeto
 
-    return res.status(200).send("listaHabitaciones")
+    return res.status(200).json({ msg: "Reserva cancelada exitosamente", type: "success" })
 };
 
 const reservarHabitacion = async (req, res) => {
