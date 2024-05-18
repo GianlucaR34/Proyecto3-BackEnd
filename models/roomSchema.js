@@ -27,7 +27,9 @@ const Habitaciones = new Schema({
         finalDate: {
             type: Date,
         }
-    }]
+    }
+    ],
+    default: []
 })
 
 
