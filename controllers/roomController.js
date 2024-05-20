@@ -48,16 +48,6 @@ const cancelarReserva = async (req, res) => {
     const user = await Usuario.findOne({ mail: userBodyJWT.name })
     const listaHabitaciones = await Habitaciones.find()
     if (user.isAdmin) {
-        const fechaInicial = new Date(req.body.initialDate)
-        const fechaFinal = new Date(req.body.finalDate)
-        let reservaUser
-        listaHabitaciones.forEach((habitacion) => {
-            habitacion.reservationDates.find((reserva) => {
-                if (reserva.idUser == req.params.id && fechaInicial - reserva.initialDate == 0 && fechaFinal - reserva.finalDate == 0) {
-                    reservaUser = reserva
-                }
-            })
-        })
         let indexHabitacion
         listaHabitaciones.forEach((habitacion, index) => {
             if (habitacion.number == req.body.number) indexHabitacion = index
