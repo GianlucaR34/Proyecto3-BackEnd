@@ -185,6 +185,7 @@ const crearHabitacion = async (req, res) => {
     const { type, number, price, photo, reservationDates } = req.body
     let Habitacion = await Habitaciones.findOne({ number: number })
     const token = req.header('TokenJWT')
+    const userBodyJWT = JWT.decode(token)
     if (Habitacion) {
         return res.status(400).json({ msg: "La habitacion ya se encuentra creada", type: "error" })
     }
@@ -192,7 +193,6 @@ const crearHabitacion = async (req, res) => {
         return res.status(403).json({ msg: "Esta acción no esta permitida por el usuario", type: "error" })
     }
     if (!token) return res.status(403).json({ msg: "El usuario necesita estar logueado", type: "error" })
-    const userBodyJWT = JWT.decode(token)
     try {
         Habitacion = new Habitaciones({ type, number, price, photo, reservationDates })
         await Habitacion.save()
