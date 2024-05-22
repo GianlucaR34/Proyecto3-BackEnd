@@ -190,7 +190,8 @@ const crearHabitacion = async (req, res) => {
     const token = req.header('TokenJWT')
     if (!token) return res.status(403).json({ msg: "El usuario necesita estar logueado", type: "error" })
     const userBodyJWT = JWT.decode(token)
-    if (!userBodyJWT.isAdmin) {
+    const userAccess = await Usuario.findOne({ mail: userBodyJWT.name })
+    if (!userAccess.isAdmin) {
         return res.status(403).json({ msg: "Esta acción no esta permitida por el usuario", type: "error" })
     }
     try {
