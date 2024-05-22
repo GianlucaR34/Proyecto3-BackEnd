@@ -16,7 +16,7 @@ const loginUsuarios = async (req, res) => {
     const token = jwt.sign(payload, process.env.SECRET_KEY, {
         expiresIn: '30m'
     })
-    return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token })
+    return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token, isAdmin: userObject.isAdmin })
 };
 
 const registrarUsuarios = async (req, res) => {
