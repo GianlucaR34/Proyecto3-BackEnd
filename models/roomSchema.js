@@ -29,7 +29,6 @@ const Habitaciones = new Schema({
         }
     }
     ],
-    default: []
 })
 
 
