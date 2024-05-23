@@ -82,11 +82,20 @@ const listaUsuarios = async (req, res) => {
 const modificarUsuario = async (req, res) => {
     const token = req.header('TokenJWT')
     const userBodyJWT = jwt.decode(token)
-    const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name })
-    if (req.url = '/modifyUser/' && clientUserID.isAdmin == true) {
+    try {
+
+        const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name })
+        if (!clientUserID.isAdmin) {
+            res.status(403).json({ msg: "No tiene permiso para realizar esta acción", type: "error" })
+        }
         const idUser = clientUserID._id
         await Usuario.findByIdAndUpdate({ _id: idUser }, req.body, { new: true })
+        res.status(200).json({ msg: "usuario modificado correctamente", type: "success" })
+    } catch (error) {
+        res.status(500).json({ msg: "Ha ocurrido un error en el servidor", type: "success" })
+
     }
+
 
 }
 
