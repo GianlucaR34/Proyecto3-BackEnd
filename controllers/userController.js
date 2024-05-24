@@ -5,18 +5,23 @@ const { emailRegexp, passwordRegexp } = require('../validators/validator');
 
 const loginUsuarios = async (req, res) => {
     const { mail, password } = req.body
-    const userObject = await Usuario.findOne({ mail: mail })
-    if (!userObject) {
-        return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
-    } else if (await bcrypt.compare(password, userObject.password) == false) {
-        return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
+    try {
+        const userObject = await Usuario.findOne({ mail: mail })
+        if (!userObject) {
+            return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
+        } else if (await bcrypt.compare(password, userObject.password) == false) {
+            return res.status(401).json({ msg: "Combinacion de usuario y contraseña incorrectos", type: "error" })
+        }
+        //Se crea payload del usuario
+        const payload = { name: userObject.mail, id: userObject._id, rol: userObject.userType }
+        const token = jwt.sign(payload, process.env.SECRET_KEY, {
+            expiresIn: '30m'
+        })
+        return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token, isAdmin: userObject.isAdmin })
+    } catch (error) {
+        return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
     }
-    //Se crea payload del usuario
-    const payload = { name: userObject.mail, id: userObject._id, rol: userObject.userType }
-    const token = jwt.sign(payload, process.env.SECRET_KEY, {
-        expiresIn: '30m'
-    })
-    return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token, isAdmin: userObject.isAdmin })
+
 };
 
 const registrarUsuarios = async (req, res) => {
@@ -51,11 +56,12 @@ const deleteUsuarios = async (req, res) => {
     try {
         // const usuarioEliminado = await Usuario.findByIdAndDelete(req.params.id);
         const token = req.header('TokenJWT')
+        if (!token) return res.status(403).json({ msg: "No tienes permiso para realizar la acción", type: "error" })
         const userBodyJWT = jwt.decode(token)
         const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name || req.body.mail })
         if (!clientUserID) {
             return res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
-        } else if (req.url == '/deleteUser/' && clientUserID.isAdmin == false) {
+        } else if (req.url == '/deleteUser/' && !clientUserID.isAdmin) {
             await Usuario.findByIdAndDelete(clientUserID._id)
             return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" })
         } else if (req.url = '/deleteUser/' && clientUserID.isAdmin) {
@@ -74,8 +80,12 @@ const deleteUsuarios = async (req, res) => {
 }
 
 const listaUsuarios = async (req, res) => {
-    const listaUsuarios = await Usuario.find()
-    return res.status(200).send(listaUsuarios)
+    try {
+        const listaUsuarios = await Usuario.find()
+        return res.status(200).send(listaUsuarios)
+    } catch (error) {
+        return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
+    }
 
 }
 
@@ -83,7 +93,6 @@ const modificarUsuario = async (req, res) => {
     const token = req.header('TokenJWT')
     const userBodyJWT = jwt.decode(token)
     try {
-
         const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name })
         if (!clientUserID.isAdmin) {
             res.status(403).json({ msg: "No tiene permiso para realizar esta acción", type: "error" })
@@ -93,7 +102,6 @@ const modificarUsuario = async (req, res) => {
         res.status(200).json({ msg: "usuario modificado correctamente", type: "success" })
     } catch (error) {
         res.status(500).json({ msg: "Ha ocurrido un error en el servidor", type: "success" })
-
     }
 
 
