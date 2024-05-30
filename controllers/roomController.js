@@ -183,13 +183,13 @@ const modificarHabitacion = async (req, res) => {
     const token = req.header('TokenJWT')
     const userBodyJWT = JWT.decode(token)
     try {
-        const habitacion = await Habitaciones.findById(req.params.id) || req.body.number
+        const habitacion = await Habitaciones.findOne({ number: req.body.number })
         const isAdmin = (await Usuario.findOne({ mail: userBodyJWT.name })).isAdmin
         if (!habitacion) return res.status(400).json({ msg: "La habitacion ingresada no existe" });
         if (!isAdmin) {
             return res.status(403).json({ msg: "Esta acción no está permitida", type: "error" })
         }
-        await Habitaciones.findByIdAndUpdate({ _id: req.params.id }, req.body, { new: true })
+        await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, req.body, { new: true })
         return res.status(201).json({ msg: "Habitacion actualizada exitosamente", type: "success" })
     } catch (error) {
         return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
