@@ -33,6 +33,15 @@ const Usuario = new Schema({
         // define si el usuario es un cliente vip o un cliente regular
         type: Boolean,
         default: false
+    },
+    userName: {
+        type: String,
+    },
+    userSurname: {
+        type: String,
+    },
+    userIdentification: {
+        type: String,
     }
 })
 

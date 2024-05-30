@@ -1,9 +1,23 @@
 const { model, Schema } = require('mongoose')
 
 const Habitaciones = new Schema({
+    photo: {
+        type: Buffer,
+        required: true,
+    },
     type: {
         type: String,
         required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    bath: {
+        type: Number,
+    },
+    meals: {
+        type: Number,
     },
     number: {
         type: Number,
@@ -11,10 +25,6 @@ const Habitaciones = new Schema({
     },
     price: {
         type: Number,
-        required: true,
-    },
-    photo: {
-        type: String,
         required: true,
     },
     reservationDates: [{
@@ -26,6 +36,15 @@ const Habitaciones = new Schema({
         },
         finalDate: {
             type: Date,
+        },
+        guessName: {
+            type: String,
+        },
+        guessSurname: {
+            type: String,
+        },
+        guessIdentification: {
+            type: String,
         }
     }
     ],
