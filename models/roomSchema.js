@@ -2,7 +2,7 @@ const { model, Schema } = require('mongoose')
 
 const Habitaciones = new Schema({
     photo: {
-        type: Buffer,
+        type: String,
         required: true,
     },
     type: {
@@ -36,15 +36,6 @@ const Habitaciones = new Schema({
         },
         finalDate: {
             type: Date,
-        },
-        guessName: {
-            type: String,
-        },
-        guessSurname: {
-            type: String,
-        },
-        guessIdentification: {
-            type: String,
         }
     }
     ],
