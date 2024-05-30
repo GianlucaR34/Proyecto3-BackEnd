@@ -2,23 +2,38 @@ const Habitaciones = require('../models/roomSchema')
 const Usuario = require('../models/userSchema')
 const JWT = require('jsonwebtoken');
 const { obtenerFechasEntre } = require('../validators/dateValidator');
+const multer = require('multer')
+const upload = multer()
 
 
 const listaHabitaciones = async (req, res) => {
+    //parametros necesarios
     const token = req.header('TokenJWT')
     const userJWT = JWT.decode(token)
     const user = await Usuario.findById({ _id: userJWT.id })
-    console.log(user.isAdmin)
+
     //si el usuario logueado es admin, traer todas las habitaciones
+    if (user.isAdmin) {
+        try {
+            const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
+            const roomPerPage = 10
+
+            const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
+            return res.status(200).send(listaHabitaciones)
+        } catch (error) {
+            return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
+        }
+    }
+    //si el usuario logueado es un usuario, traerle todas las fechas reservadas.
     try {
-        const page = req.params.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
-        const listaHabitaciones = await Habitaciones.find()
+        const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
+        const roomPerPage = 9
+
+        const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
         return res.status(200).send(listaHabitaciones)
     } catch (error) {
         return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
     }
-    //si el usuario logueado es un usuario, traerle todas las fechas reservadas.
-
 };
 
 const habitacionesReservadas = async (req, res) => {
@@ -184,6 +199,7 @@ const modificarHabitacion = async (req, res) => {
 
 const crearHabitacion = async (req, res) => {
     const { type, number, price, photo, reservationDates } = req.body
+
     try {
         let Habitacion = await Habitaciones.findOne({ number: number })
         if (Habitacion) {
@@ -204,6 +220,7 @@ const crearHabitacion = async (req, res) => {
             type: "success"
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
     }
 };
