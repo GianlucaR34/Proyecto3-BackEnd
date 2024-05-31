@@ -2,8 +2,6 @@ const Habitaciones = require('../models/roomSchema')
 const Usuario = require('../models/userSchema')
 const JWT = require('jsonwebtoken');
 const { obtenerFechasEntre } = require('../validators/dateValidator');
-const multer = require('multer')
-const upload = multer()
 
 
 const listaHabitaciones = async (req, res) => {
@@ -138,41 +136,56 @@ const reservarHabitacion = async (req, res) => {
         const usuarioReserva = await Usuario.findOne({ mail: userBodyJWT.name })
         const habitacion = await Habitaciones.findOne({ number: habitacionID })
         const fechasReservadas = habitacion.reservationDates
-        const nuevaReserva = {
-            idUser: usuarioReserva._id,
-            initialDate: new Date(initialDateUser),
-            finalDate: new Date(finalDateUser)
-        }
+        if (fechasReservadas.length != 0) {
+            const nuevaReserva = {
+                idUser: usuarioReserva._id,
+                initialDate: new Date(initialDateUser),
+                finalDate: new Date(finalDateUser)
+            }
 
-        let buscarFechasReservadas
-        fechasReservadas.forEach((fecha) => {
-            buscarFechasReservadas = obtenerFechasEntre(fecha.initialDate, fecha.finalDate)
-        })
+            let buscarFechasReservadas
+            fechasReservadas.forEach((fecha) => {
+                buscarFechasReservadas = obtenerFechasEntre(fecha.initialDate, fecha.finalDate)
+            })
 
-        function tieneInterseccion(array1, array2) {
-            return array1.some(elemento => array2.includes(elemento));
-        }
-        function esSubconjunto(array1, array2) {
-            return array1.every(elemento => array2.includes(elemento));
-        }
+            function tieneInterseccion(array1, array2) {
+                return array1.some(elemento => array2.includes(elemento));
+            }
+            function esSubconjunto(array1, array2) {
+                return array1.every(elemento => array2.includes(elemento));
+            }
 
 
-        const isAvailableDate = () => {
-            const dateUser = obtenerFechasEntre(nuevaReserva.initialDate, nuevaReserva.finalDate)
-            const dateTaken = buscarFechasReservadas
-            const isIntersected = tieneInterseccion(dateTaken, dateUser)
-            const isSubset = esSubconjunto(dateTaken, dateUser)
-            const availableDate = (isIntersected || isSubset) ? false : true;
-            return availableDate
-        }
+            const isAvailableDate = () => {
+                const dateUser = obtenerFechasEntre(nuevaReserva.initialDate, nuevaReserva.finalDate)
+                const dateTaken = buscarFechasReservadas
+                const isIntersected = tieneInterseccion(dateTaken, dateUser)
+                const isSubset = esSubconjunto(dateTaken, dateUser)
+                const availableDate = (isIntersected || isSubset) ? false : true;
+                return availableDate
+            }
 
-        if (!isAvailableDate) {
+            if (!isAvailableDate) {
+                habitacion.reservationDates.push(nuevaReserva)
+                await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, habitacion, { new: true })
+                return res.status(200).json({ msg: "Reserva realizada con exito", type: "success" })
+            }
+        } else if (fechasReservadas.length == 0) {
+            const nuevaReserva = {
+                idUser: usuarioReserva._id,
+                initialDate: new Date(initialDateUser),
+                finalDate: new Date(finalDateUser)
+            }
             habitacion.reservationDates.push(nuevaReserva)
             await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, habitacion, { new: true })
             return res.status(200).json({ msg: "Reserva realizada con exito", type: "success" })
         }
+        console.log(fechasReservadas)
+        console.log(habitacion)
+        console.log(usuarioReserva)
         return res.status(403).json({ msg: "Las fechas no estan disponibles", type: "error" })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
     }
 
