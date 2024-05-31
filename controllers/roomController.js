@@ -238,5 +238,37 @@ const crearHabitacion = async (req, res) => {
     }
 };
 
+const dateDisables = async (req, res) => {
+    try {
+        const habitaciones = await Habitaciones.find()
+        if (!habitaciones) res.status(400).json({ msg: "No se han encontrado habitaciones creadas", type: "error" })
+        const fechasReservadasPorHabitacion = []
+        const todasLasFechasReservadas = []
+        habitaciones.forEach(element => {
+            if (element.reservationDates.length > 0) {
+                element.reservationDates.forEach((usuario) => {
+                    fechasReservadasPorHabitacion.push([usuario.initialDate, usuario.finalDate, element.number
+                    ])
+                })
+            }
+        });
+        //todas las fechas reservadas
+        fechasReservadasPorHabitacion.forEach((fecha) => {
+            const dateBatch = obtenerFechasEntre(fecha[0], fecha[1])
+            dateBatch.forEach(date => {
+                let doesExists = todasLasFechasReservadas.includes(date)
+                if (!doesExists) {
+                    newDate = new Date(date)
+                    todasLasFechasReservadas.push(newDate)
+                }
+            })
+        })
+        res.status(200).send(todasLasFechasReservadas)
 
-module.exports = { listaHabitaciones, reservarHabitacion, modificarHabitacion, crearHabitacion, habitacionesReservadas, cancelarReserva }
+    } catch (error) {
+        res.status(500).json({ msg: "Ha ocurrido un error en el servidor", type: "error" })
+    }
+    //tengo que pensar si restringir las reservas por rangos dependiendo de la habitacion o restringir en general las fechas ya reservadas aunque no sea la misma habitacion
+
+}
+module.exports = { listaHabitaciones, reservarHabitacion, modificarHabitacion, crearHabitacion, habitacionesReservadas, cancelarReserva, dateDisables }

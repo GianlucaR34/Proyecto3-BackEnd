@@ -7,6 +7,5 @@ userRouter.post('/loginUser', loginUsuarios);
 userRouter.post('/createUser', registrarUsuarios);
 userRouter.patch('/modifyUser/:id?', validarJWT, modificarUsuario)
 userRouter.delete('/deleteUser/:id?', validarJWT, deleteUsuarios)
-userRouter.get('/disableDates', validarJWT, dateDisables)
 
 module.exports = userRouter;

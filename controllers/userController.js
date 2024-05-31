@@ -1,11 +1,9 @@
 const Usuario = require('../models/userSchema')
+const Habitaciones = require('../models/roomSchema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { emailRegexp, passwordRegexp } = require('../validators/validator');
 
-const dateDisables = async (req, res) => {
-
-}
 
 const loginUsuarios = async (req, res) => {
     const { mail, password } = req.body
@@ -111,4 +109,4 @@ const modificarUsuario = async (req, res) => {
 
 }
 
-module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario, dateDisables }
+module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario }
