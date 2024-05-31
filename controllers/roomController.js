@@ -2,8 +2,6 @@ const Habitaciones = require('../models/roomSchema')
 const Usuario = require('../models/userSchema')
 const JWT = require('jsonwebtoken');
 const { obtenerFechasEntre } = require('../validators/dateValidator');
-const multer = require('multer')
-const upload = multer()
 
 
 const listaHabitaciones = async (req, res) => {
@@ -17,7 +15,6 @@ const listaHabitaciones = async (req, res) => {
         try {
             const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
             const roomPerPage = 10
-
             const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
             return res.status(200).send(listaHabitaciones)
         } catch (error) {
