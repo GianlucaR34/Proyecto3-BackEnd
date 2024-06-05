@@ -3,7 +3,6 @@ const Usuario = require('../models/userSchema')
 const JWT = require('jsonwebtoken');
 const { obtenerFechasEntre } = require('../validators/dateValidator');
 
-
 const listaHabitaciones = async (req, res) => {
     //parametros necesarios
     const token = req.header('TokenJWT')
@@ -15,7 +14,6 @@ const listaHabitaciones = async (req, res) => {
         try {
             const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
             const roomPerPage = 10
-
             const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
             return res.status(200).send(listaHabitaciones)
         } catch (error) {
@@ -26,7 +24,6 @@ const listaHabitaciones = async (req, res) => {
     try {
         const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
         const roomPerPage = 9
-
         const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
         return res.status(200).send(listaHabitaciones)
     } catch (error) {
@@ -126,7 +123,7 @@ const reservarHabitacion = async (req, res) => {
     const habitacionID = req.body.roomNumber;
     const initialDateUser = req.body.initialDate;
     const finalDateUser = req.body.finalDate;
-
+    const data = req.body
     const token = req.header('TokenJWT')
     if (!token) {
         return res.status(403).json({ msg: "El usuario necesita estar logueado", type: "error" })
@@ -136,12 +133,15 @@ const reservarHabitacion = async (req, res) => {
         const usuarioReserva = await Usuario.findOne({ mail: userBodyJWT.name })
         const habitacion = await Habitaciones.findOne({ number: habitacionID })
         const fechasReservadas = habitacion.reservationDates
+        const nuevaReserva = {
+            idUser: usuarioReserva._id,
+            initialDate: new Date(initialDateUser),
+            finalDate: new Date(finalDateUser),
+            headName: data.Nombre,
+            headSurname: data.Apellido,
+            headDNI: data.DNI,
+        }
         if (fechasReservadas.length != 0) {
-            const nuevaReserva = {
-                idUser: usuarioReserva._id,
-                initialDate: new Date(initialDateUser),
-                finalDate: new Date(finalDateUser)
-            }
 
             let buscarFechasReservadas
             fechasReservadas.forEach((fecha) => {
@@ -165,24 +165,16 @@ const reservarHabitacion = async (req, res) => {
                 return availableDate
             }
 
-            if (!isAvailableDate) {
+            if (isAvailableDate()) {
                 habitacion.reservationDates.push(nuevaReserva)
                 await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, habitacion, { new: true })
                 return res.status(200).json({ msg: "Reserva realizada con exito", type: "success" })
             }
         } else if (fechasReservadas.length == 0) {
-            const nuevaReserva = {
-                idUser: usuarioReserva._id,
-                initialDate: new Date(initialDateUser),
-                finalDate: new Date(finalDateUser)
-            }
             habitacion.reservationDates.push(nuevaReserva)
             await Habitaciones.findByIdAndUpdate({ _id: habitacion._id }, habitacion, { new: true })
             return res.status(200).json({ msg: "Reserva realizada con exito", type: "success" })
         }
-        console.log(fechasReservadas)
-        console.log(habitacion)
-        console.log(usuarioReserva)
         return res.status(403).json({ msg: "Las fechas no estan disponibles", type: "error" })
     } catch (error) {
         console.log(error)
@@ -211,7 +203,7 @@ const modificarHabitacion = async (req, res) => {
 };
 
 const crearHabitacion = async (req, res) => {
-    const { type, number, price, photo, reservationDates } = req.body
+    const { type, number, price, photo, reservationDates, description, numberOfGuestMax, bath, meals } = req.body
 
     try {
         let Habitacion = await Habitaciones.findOne({ number: number })
@@ -226,7 +218,7 @@ const crearHabitacion = async (req, res) => {
             return res.status(403).json({ msg: "Esta acción no esta permitida por el usuario", type: "error" })
         }
 
-        Habitacion = new Habitaciones({ type, number, price, photo, reservationDates })
+        Habitacion = new Habitaciones({ type, number, price, photo, reservationDates, description, numberOfGuestMax, bath, meals })
         await Habitacion.save()
         return res.status(201).json({
             msg: "Habitacion creada correctamente",
@@ -258,13 +250,12 @@ const dateDisables = async (req, res) => {
             dateBatch.forEach(date => {
                 let doesExists = todasLasFechasReservadas.includes(date)
                 if (!doesExists) {
-                    newDate = new Date(date)
+                    newDate = date
                     todasLasFechasReservadas.push(newDate)
                 }
             })
         })
         res.status(200).send(todasLasFechasReservadas)
-
     } catch (error) {
         res.status(500).json({ msg: "Ha ocurrido un error en el servidor", type: "error" })
     }
