@@ -1,10 +1,6 @@
 const { model, Schema } = require('mongoose')
 
 const Habitaciones = new Schema({
-    photo: {
-        type: String,
-        required: true,
-    },
     type: {
         type: String,
         required: true
@@ -13,15 +9,24 @@ const Habitaciones = new Schema({
         type: String,
         required: true
     },
+    number: {
+        type: Number,
+        required: true,
+    },
+    numberOfGuestMax: {
+        type: Number,
+        required: true,
+        default: 1
+    },
+    photo: {
+        type: String,
+        required: true,
+    },
     bath: {
         type: Number,
     },
     meals: {
         type: Number,
-    },
-    number: {
-        type: Number,
-        required: true,
     },
     price: {
         type: Number,
@@ -36,9 +41,17 @@ const Habitaciones = new Schema({
         },
         finalDate: {
             type: Date,
+        },
+        headName: {
+            type: String,
+        },
+        headSurname: {
+            type: String,
+        },
+        headDNI: {
+            type: String,
         }
-    }
-    ],
+    }],
 })
 
 

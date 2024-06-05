@@ -1,5 +1,5 @@
 const userRouter = require('express').Router()
-const { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario } = require('../controllers/userController');
+const { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario, dateDisables } = require('../controllers/userController');
 const validarJWT = require('../middlewares/JWToken');
 
 userRouter.get('/listUser', validarJWT, listaUsuarios);
