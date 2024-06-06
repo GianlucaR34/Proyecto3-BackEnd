@@ -4,6 +4,12 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { emailRegexp, passwordRegexp } = require('../validators/validator');
 
+const userLoggedIn = async (req, res) => {
+    const userBodyJWT = jwt.decode(req.header('TokenJWT'))
+    const user = await Usuario.findOne({ mail: userBodyJWT.name })
+    const response = { nombre: user.userName, apellido: user.userSurname, dni: user.userIdentification }
+    return res.status(200).json(response)
+}
 
 const loginUsuarios = async (req, res) => {
     const { mail, password } = req.body
@@ -17,7 +23,7 @@ const loginUsuarios = async (req, res) => {
         //Se crea payload del usuario
         const payload = { name: userObject.mail, id: userObject._id, rol: userObject.userType }
         const token = jwt.sign(payload, process.env.SECRET_KEY, {
-            expiresIn: '30m'
+            expiresIn: '5m'
         })
         return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token, isAdmin: userObject.isAdmin })
     } catch (error) {
@@ -27,7 +33,7 @@ const loginUsuarios = async (req, res) => {
 };
 
 const registrarUsuarios = async (req, res) => {
-    const { mail, password } = req.body
+    const { mail, password, userName, userSurname, userIdentification } = req.body
     let User = await Usuario.findOne({ mail: mail })
     //validaciones
     if (emailRegexp.test(mail) == false) {
@@ -108,5 +114,4 @@ const modificarUsuario = async (req, res) => {
 
 
 }
-
-module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario }
+module.exports = { loginUsuarios, registrarUsuarios, deleteUsuarios, listaUsuarios, modificarUsuario, userLoggedIn }
