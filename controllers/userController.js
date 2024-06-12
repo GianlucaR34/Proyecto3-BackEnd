@@ -23,7 +23,7 @@ const loginUsuarios = async (req, res) => {
         //Se crea payload del usuario
         const payload = { name: userObject.mail, id: userObject._id, rol: userObject.userType }
         const token = jwt.sign(payload, process.env.SECRET_KEY, {
-            expiresIn: '5m'
+            expiresIn: '35m'
         })
         return res.status(200).json({ msg: "Usuario Logueado correctamente", type: "success", token, isAdmin: userObject.isAdmin })
     } catch (error) {

@@ -36,12 +36,15 @@ const Usuario = new Schema({
     },
     userName: {
         type: String,
+        required: true
     },
     userSurname: {
         type: String,
+        required: true
     },
     userIdentification: {
         type: String,
+        required: true
     }
 })
 
