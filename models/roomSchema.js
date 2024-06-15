@@ -20,7 +20,7 @@ const Habitaciones = new Schema({
     },
     photo: {
         type: String,
-        required: true,
+        // required: true,
     },
     bath: {
         type: Number,

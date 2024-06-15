@@ -69,13 +69,13 @@ const deleteUsuarios = async (req, res) => {
         const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name || req.body.mail })
         if (!clientUserID) {
             return res.status(404).json({ msg: "Usuario no encontrado", type: "error" });
-        } else if (req.url == '/deleteUser/' && !clientUserID.isAdmin) {
+        } else if (!clientUserID.isAdmin) {
             await Usuario.findByIdAndDelete(clientUserID._id)
             return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" })
-        } else if (req.url = '/deleteUser/' && clientUserID.isAdmin) {
+        } else if (clientUserID.isAdmin) {
             const idUser = req.params.id
-            const userTarget = Usuario.findOne({ _id: idUser })
-            if (userTarget.isEditable == false) {
+            const userTarget = await Usuario.findOne({ _id: idUser })
+            if (userTarget.isAdmin == false) {
                 await Usuario.findByIdAndDelete(idUser)
                 return res.status(200).json({ msg: "Usuario eliminado correctamente", type: "success" });
             }
@@ -94,21 +94,22 @@ const listaUsuarios = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
     }
-
 }
 
 const modificarUsuario = async (req, res) => {
     const token = req.header('TokenJWT')
     const userBodyJWT = jwt.decode(token)
+    const body = req.body
     try {
         const clientUserID = await Usuario.findOne({ mail: userBodyJWT.name })
         if (!clientUserID.isAdmin) {
             res.status(403).json({ msg: "No tiene permiso para realizar esta acción", type: "error" })
         }
-        const idUser = clientUserID._id
+        const idUser = req.body._id
         await Usuario.findByIdAndUpdate({ _id: idUser }, req.body, { new: true })
         res.status(200).json({ msg: "usuario modificado correctamente", type: "success" })
     } catch (error) {
+        console.log(error)
         res.status(500).json({ msg: "Ha ocurrido un error en el servidor", type: "success" })
     }
 

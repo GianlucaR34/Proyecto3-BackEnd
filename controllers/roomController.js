@@ -13,9 +13,11 @@ const listaHabitaciones = async (req, res) => {
     //si el usuario logueado es admin, traer todas las habitaciones
     if (user.isAdmin) {
         try {
-            const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
+            /*            const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
             const roomPerPage = 10
-            const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
+            .skip(page * roomPerPage).limit(roomPerPage)*/
+
+            const listaHabitaciones = await Habitaciones.find()
             return res.status(200).send(listaHabitaciones)
         } catch (error) {
             return res.status(500).json({ msg: "Error interno del servidor", type: "error" });
@@ -23,8 +25,10 @@ const listaHabitaciones = async (req, res) => {
     }
     //si el usuario logueado es un usuario, traerle todas las fechas reservadas.
     try {
-        const page = req.query.page || 0 //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
+        //Parametro paginacion con 20 resultados aproximadamente con los atributos de las habitaciones
+        const page = req.query.page || 0
         const roomPerPage = 9
+
         const listaHabitaciones = await Habitaciones.find().skip(page * roomPerPage).limit(roomPerPage)
         return res.status(200).send(listaHabitaciones)
     } catch (error) {
