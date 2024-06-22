@@ -7,7 +7,7 @@ roomRouter.get('/reservedRooms', validarJWT, habitacionesReservadas);
 roomRouter.get('/disableDates', dateDisables)
 roomRouter.post('/createRoom', validarJWT, crearHabitacion)
 roomRouter.patch('/roomReserve/', validarJWT, reservarHabitacion)
-roomRouter.patch('/modifyRoom/', validarJWT, modificarHabitacion)
+roomRouter.patch('/modifyRoom/:id?', validarJWT, modificarHabitacion)
 roomRouter.patch('/cancelReserve/:id?', cancelarReserva)
 
 module.exports = roomRouter;
