@@ -33,7 +33,7 @@ const loginUsuarios = async (req, res) => {
 };
 
 const registrarUsuarios = async (req, res) => {
-    const { mail, password, userName, userSurname, userIdentification } = req.body
+    const { mail, password } = req.body
     let User = await Usuario.findOne({ mail: mail })
     //validaciones
     if (emailRegexp.test(mail) == false) {
